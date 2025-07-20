@@ -1,5 +1,4 @@
 package com.ittia.gds.ui;
-
 import java.awt.BorderLayout;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -9,10 +8,8 @@ import javax.swing.JFrame;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
-
 import com.ittia.gds.ui.components.mainframe.changestring.EMRProcessor;
 import com.ittia.gds.ui.components.mainframe.format.MainFrameFormat;
-
 /**
  * Main application window for the GDS EMR interface.
  * Acts as the backbone for assembling the UI components and managing core interactions.
@@ -20,17 +17,14 @@ import com.ittia.gds.ui.components.mainframe.format.MainFrameFormat;
 public class GDSEMR_frame {
     private static final int FRAME_WIDTH = 1275;
     private static final int FRAME_HEIGHT = 1020;
-
     public static JFrame frame;
     public static JTextArea[] textAreas;
     public static JTextArea tempOutputArea;
     private JTextField gradientInputField;
-
     public static final String[] TEXT_AREA_TITLES = {
             "CC>", "PI>", "ROS>", "PMH>", "S>",
             "O>", "Physical Exam>", "A>", "P>", "Comment>"
     };
-
     /**
      * Constructor for GDSEMR_frame. Initializes core UI components.
      */
@@ -40,7 +34,6 @@ public class GDSEMR_frame {
         tempOutputArea = new JTextArea();
         gradientInputField = MainFrameFormat.createGradientTextField(20);
     }
-
     /**
      * Creates and displays the GUI. This method orchestrates the assembly of the frame and its panels.
      */
@@ -50,7 +43,6 @@ public class GDSEMR_frame {
         registerListeners();
         frame.setVisible(true);
     }
-
     /**
      * Configures the main JFrame properties.
      */
@@ -60,7 +52,6 @@ public class GDSEMR_frame {
         frame.setUndecorated(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
-
     /**
      * Initializes and adds all major panels to the frame.
      */
@@ -71,7 +62,6 @@ public class GDSEMR_frame {
         frame.add(format.createCenterPanel(textAreas, TEXT_AREA_TITLES), BorderLayout.CENTER);
         frame.add(format.createWestPanel(tempOutputArea, gradientInputField), BorderLayout.WEST);
     }
-
     /**
      * Registers all necessary listeners for text areas.
      */
@@ -84,7 +74,6 @@ public class GDSEMR_frame {
             }
         }
     }
-
     /**
      * Updates the text of a specific text area.
      * @param index The index of the text area to update.
@@ -99,7 +88,6 @@ public class GDSEMR_frame {
             textAreas[index].append(text);
         });
     }
-
     /**
      * Updates the temporary output area.
      * @param text The text to set in the output area.
@@ -111,7 +99,6 @@ public class GDSEMR_frame {
             });
         }
     }
-
     /**
      * Handles function key press events.
      */
@@ -121,11 +108,9 @@ public class GDSEMR_frame {
             int keyCode = e.getKeyCode();
             if (keyCode >= KeyEvent.VK_F1 && keyCode <= KeyEvent.VK_F12) {
                 String functionKeyMessage = "F" + (keyCode - KeyEvent.VK_F1 + 1) + " key pressed - Action executed.";
-                // GDSEMR_FunctionKey.handleFunctionKeyAction(1, functionKeyMessage, keyCode);
             }
         }
     }
-
     /**
      * Handles double-click events on text areas.
      */
@@ -138,7 +123,6 @@ public class GDSEMR_frame {
             }
         }
     }
-
     /**
      * Launches the application.
      * @param args Command line arguments.

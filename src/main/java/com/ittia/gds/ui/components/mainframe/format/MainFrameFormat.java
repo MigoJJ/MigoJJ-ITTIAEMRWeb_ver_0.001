@@ -7,158 +7,120 @@ import java.awt.geom.RoundRectangle2D;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicButtonUI;
-
 import com.ittia.gds.ui.components.mainframe.buttons.MainFrame_Button_north_south;
 
+/**
+ * Compact UI formatting for GDS EMR interface with Kim Whanki's "Universe" color palette.
+ */
 public class MainFrameFormat {
     private static final int FRAME_WIDTH = 1275;
     private static final int FRAME_HEIGHT = 1020;
-    private static final Font BUTTON_FONT = new Font("Consolas", Font.BOLD, 12); // Changed from Segoe UI to Consolas
-    private static final Color HOVER_COLOR = new Color(200, 220, 255, 50); // Soft blue-white hover inspired by Universe's glow
-    private static final Color PRESSED_COLOR = new Color(0, 20, 60, 50); // Darker blue for pressed state
-    private static final int BUTTON_CORNER_RADIUS = 10;
+    private static final Font CONSOLAS_FONT = new Font("Consolas", Font.PLAIN, 11);
+    private static final Color HOVER_COLOR = new Color(255, 255, 255, 150);
+    private static final Color PRESSED_COLOR = new Color(200, 200, 255, 200);
+    private static final int BUTTON_CORNER_RADIUS = 20;
+    private static final Color UNIVERSE_BLUE_DARK = new Color(0, 0, 60);
+    private static final Color UNIVERSE_BLUE_MID = new Color(0, 0, 120);
+    private static final Color UNIVERSE_BLUE_LIGHT = new Color(100, 150, 255);
+    private static final Color UNIVERSE_ACCENT_LIGHT = new Color(220, 230, 255);
+    private static final Color UNIVERSE_ACCENT_SUBTLE_WARM = new Color(255, 230, 180);
+    private static final Color TEXT_COLOR = new Color(240, 240, 255);
 
-    public static JTextField createGradientTextField(int columns) {
-        return new GradientTextField(columns);
-    }
-
-    private JButton createFancyButton(String text) {
-        return new JButton(text) {
-            private boolean hovered = false;
-            private boolean pressed = false;
+    private JButton createFancyButton(String text, String panelType) {
+        JButton button = new JButton(text) {
+            private boolean hovered, pressed;
 
             {
-                setFont(BUTTON_FONT);
-                setForeground(Color.WHITE);
-                setBorder(new EmptyBorder(5, 15, 5, 15));
+                setFont(CONSOLAS_FONT);
+                setForeground(TEXT_COLOR);
+                setBorder(new EmptyBorder(8, 20, 8, 20));
                 setContentAreaFilled(false);
                 setFocusPainted(false);
                 setUI(new BasicButtonUI());
-
                 addMouseListener(new MouseAdapter() {
-                    public void mouseEntered(MouseEvent e) {
-                        hovered = true; repaint();
-                    }
-                    public void mouseExited(MouseEvent e) {
-                        hovered = false; pressed = false; repaint();
-                    }
-                    public void mousePressed(MouseEvent e) {
-                        pressed = true; repaint();
-                    }
-                    public void mouseReleased(MouseEvent e) {
-                        pressed = false; repaint();
+                    @Override
+                    public void mouseEntered(MouseEvent e) { hovered = true; repaint(); }
+                    @Override
+                    public void mouseExited(MouseEvent e) { hovered = pressed = false; repaint(); }
+                    @Override
+                    public void mousePressed(MouseEvent e) { pressed = true; repaint(); }
+                    @Override
+                    public void mouseReleased(MouseEvent e) { pressed = false; repaint(); }
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        MainFrame_Button_north_south.EMR_B_1entryentry(text, panelType);
+                        if (e.getClickCount() == 2) {
+                            MainFrame_Button_north_south.EMR_B_2entryentry(text, panelType);
+                        }
                     }
                 });
             }
 
+            @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-                Shape shape = new RoundRectangle2D.Double(0, 0, getWidth()-1, getHeight()-1,
-                        BUTTON_CORNER_RADIUS, BUTTON_CORNER_RADIUS);
-
-                // Gradient inspired by Kim Whanki's Universe: deep blues
-                GradientPaint gradient = new GradientPaint(
-                        0, 0, new Color(0, 51, 102), // Ultramarine blue
-                        0, getHeight(), new Color(0, 102, 153)); // Cerulean blue
-                g2.setPaint(gradient);
+                g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+                Shape shape = new RoundRectangle2D.Double(0, 0, getWidth()-1, getHeight()-1, BUTTON_CORNER_RADIUS, BUTTON_CORNER_RADIUS);
+                g2.setPaint(new GradientPaint(0, 0, UNIVERSE_BLUE_LIGHT, 0, getHeight(), UNIVERSE_BLUE_MID));
                 g2.fill(shape);
-
-                if (hovered) {
-                    g2.setColor(HOVER_COLOR);
-                    g2.fill(shape);
-                }
-
-                if (pressed) {
-                    g2.setColor(PRESSED_COLOR);
-                    g2.fill(shape);
-                }
-
-                g2.setColor(new Color(150, 180, 220, 80)); // Soft blue border
+                if (hovered) g2.setColor(HOVER_COLOR);
+                if (pressed) g2.setColor(PRESSED_COLOR);
+                if (hovered || pressed) g2.fill(shape);
+                g2.setColor(UNIVERSE_ACCENT_LIGHT);
                 g2.draw(shape);
                 g2.dispose();
-
                 super.paintComponent(g);
             }
         };
+        return button;
+    }
+
+    private JPanel createGradientPanel(int height, int gridColumns, String[] buttonLabels, String panelType) {
+        JPanel panel = new JPanel(new GridLayout(1, gridColumns)) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2d = (Graphics2D) g;
+                g2d.setPaint(new GradientPaint(0, 0, UNIVERSE_BLUE_LIGHT, 0, getHeight(), UNIVERSE_BLUE_DARK));
+                g2d.fillRect(0, 0, getWidth(), getHeight());
+            }
+        };
+        panel.setPreferredSize(new Dimension(FRAME_WIDTH, height));
+        for (String label : buttonLabels) {
+            panel.add(createFancyButton(label, panelType));
+        }
+        return panel;
     }
 
     public JPanel createNorthPanel() {
-        // Gradient inspired by Universe's cosmic blue palette
-        JPanel panel = createGradientPanel(new Color(0, 51, 102), new Color(0, 76, 153));
-        panel.setLayout(new GridLayout(1, 13));
-        panel.setPreferredSize(new Dimension(FRAME_WIDTH, 50));
-
-        String[] buttons = {"Rescue", "Backup", "Copy", "CE", "Clear", "Exit",
-                            "Abbreviation", "ICD-11", "KCD8", "Lab code", "Lab sum", "db", "ittia_support"};
-
-        for (String btn : buttons) {
-            JButton button = createFancyButton(btn);
-            button.addMouseListener(new MouseAdapter() {
-                public void mouseClicked(MouseEvent e) {
-                    if (e.getClickCount() == 1)
-                        MainFrame_Button_north_south.EMR_B_1entryentry(btn, "north");
-                    else if (e.getClickCount() == 2)
-                        MainFrame_Button_north_south.EMR_B_2entryentry(btn, "north");
-                }
-            });
-            panel.add(button);
-        }
-
-        return panel;
+        String[] buttons = {"Rescue", "Backup", "Copy", "CE", "Clear", "Exit", "Abbreviation", "ICD-11", "KCD8", "Lab code", "Lab sum", "db", "ittia_support"};
+        return createGradientPanel(60, 13, buttons, "north");
     }
 
     public JPanel createSouthPanel() {
-        // Gradient with deeper blues for a cosmic feel
-        JPanel panel = createGradientPanel(new Color(0, 25, 51), new Color(0, 102, 204));
-        panel.setLayout(new GridLayout(1, 11));
-        panel.setPreferredSize(new Dimension(FRAME_WIDTH, 50));
-
-        String[] buttons = {
-            "F/U DM", "F/U HTN", "F/U Chol", "F/U Thyroid", "Osteoporosis",
-            "URI", "Allergy", "Injections", "GDS RC", "공단검진", "F/U Edit"
-        };
-
-        for (String btn : buttons) {
-            JButton button = createFancyButton(btn);
-            button.addMouseListener(new MouseAdapter() {
-                public void mouseClicked(MouseEvent e) {
-                    if (e.getClickCount() == 1)
-                        MainFrame_Button_north_south.EMR_B_1entryentry(btn, "south");
-                    else if (e.getClickCount() == 2)
-                        MainFrame_Button_north_south.EMR_B_2entryentry(btn, "south");
-                }
-            });
-            panel.add(button);
-        }
-
-        return panel;
+        String[] buttons = {"F/U DM", "F/U HTN", "F/U Chol", "F/U Thyroid", "Osteoporosis", "URI", "Allergy", "Injections", "GDS RC", "공단검진", "F/U Edit"};
+        return createGradientPanel(60, 11, buttons, "south");
     }
 
     public JPanel createCenterPanel(JTextArea[] textAreas, String[] titles) {
         JPanel centerPanel = new JPanel(new GridLayout(5, 2));
         centerPanel.setPreferredSize(new Dimension(900, 1000));
-
-        // Updated gradients inspired by Kim Whanki's Universe color palette
         Color[][] gradients = {
-            { new Color(0, 51, 102), new Color(0, 102, 153) }, // Ultramarine to cerulean
-            { new Color(0, 25, 51), new Color(0, 76, 153) }, // Deep blue to medium blue
-            { new Color(0, 76, 153), new Color(0, 128, 204) }, // Cerulean to brighter blue
-            { new Color(0, 51, 102), new Color(0, 153, 204) }, // Ultramarine to light blue
-            { new Color(0, 25, 51), new Color(0, 102, 204) }, // Deep blue to vibrant blue
-            { new Color(0, 102, 153), new Color(0, 153, 255) }, // Cerulean to sky blue
-            { new Color(0, 51, 102), new Color(0, 76, 153) }, // Ultramarine to medium blue
-            { new Color(0, 25, 51), new Color(0, 128, 204) }, // Deep blue to brighter blue
-            { new Color(0, 76, 153), new Color(0, 102, 204) }, // Cerulean to vibrant blue
-            { new Color(0, 51, 102), new Color(0, 153, 255) } // Ultramarine to sky blue
+            {UNIVERSE_BLUE_DARK, UNIVERSE_BLUE_LIGHT}, {UNIVERSE_BLUE_MID, UNIVERSE_ACCENT_LIGHT},
+            {UNIVERSE_BLUE_DARK, UNIVERSE_ACCENT_LIGHT}, {UNIVERSE_BLUE_MID, UNIVERSE_BLUE_LIGHT},
+            {UNIVERSE_BLUE_LIGHT, UNIVERSE_ACCENT_LIGHT}, {UNIVERSE_ACCENT_LIGHT, UNIVERSE_BLUE_DARK},
+            {UNIVERSE_BLUE_DARK, UNIVERSE_ACCENT_SUBTLE_WARM}, {UNIVERSE_BLUE_MID, UNIVERSE_ACCENT_LIGHT},
+            {UNIVERSE_BLUE_LIGHT, UNIVERSE_ACCENT_SUBTLE_WARM}, {UNIVERSE_BLUE_DARK, UNIVERSE_ACCENT_LIGHT}
         };
 
         for (int i = 0; i < textAreas.length; i++) {
             textAreas[i] = new GradientTextArea(gradients[i][0], gradients[i][1]);
-            textAreas[i].setText(titles[i] + "	");
-            textAreas[i].setForeground(Color.WHITE);
-            setupTextAreaProperties(textAreas[i], i);
+            textAreas[i].setText(titles[i] + "\t");
+            textAreas[i].setForeground(TEXT_COLOR);
+            textAreas[i].setFont(CONSOLAS_FONT);
+            textAreas[i].setOpaque(false);
+            textAreas[i].setBorder(new EmptyBorder(10, 10, 10, 10));
             JScrollPane scrollPane = new JScrollPane(textAreas[i]);
             scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
             centerPanel.add(scrollPane);
@@ -172,58 +134,46 @@ public class MainFrameFormat {
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 Graphics2D g2d = (Graphics2D) g;
-                int width = getWidth();
-                int height = getHeight();
-                // Lighter sky blue gradient, inverted (bottom to top)
-                GradientPaint gradient = new GradientPaint(
-                    0, height, new Color(173, 216, 230), // Very light sky blue (LightSkyBlue)
-                    0, 0, new Color(135, 206, 235) // Slightly deeper sky blue
-                );
-                g2d.setPaint(gradient);
-                g2d.fillRect(0, 0, width, height);
+                g2d.setPaint(new GradientPaint(0, 0, UNIVERSE_BLUE_LIGHT, 0, getHeight(), UNIVERSE_BLUE_DARK));
+                g2d.fillRect(0, 0, getWidth(), getHeight());
             }
         };
         westPanel.setPreferredSize(new Dimension(500, FRAME_HEIGHT));
 
-        setupOutputArea(outputArea);
+        outputArea.setForeground(TEXT_COLOR);
+        outputArea.setFont(CONSOLAS_FONT);
+        outputArea.setOpaque(false);
+        outputArea.setBorder(new EmptyBorder(10, 10, 10, 10));
+        outputArea.setEditable(false);
+
+        inputField.setForeground(TEXT_COLOR);
+        inputField.setFont(CONSOLAS_FONT);
+        inputField.setOpaque(false);
+        inputField.setBorder(new EmptyBorder(10, 10, 10, 10));
+
         JScrollPane outputScrollPane = new JScrollPane(outputArea);
         outputScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        outputScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         outputScrollPane.setOpaque(false);
         outputScrollPane.getViewport().setOpaque(false);
-        westPanel.add(outputScrollPane, BorderLayout.CENTER);
+        outputScrollPane.setBorder(null);
 
         JPanel inputPanel = new JPanel(new BorderLayout());
         inputPanel.setOpaque(false);
-        inputPanel.add(inputField, BorderLayout.NORTH);
-        westPanel.add(inputPanel, BorderLayout.SOUTH);
+        inputPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+        inputPanel.add(inputField, BorderLayout.CENTER);
 
+        westPanel.add(outputScrollPane, BorderLayout.CENTER);
+        westPanel.add(inputPanel, BorderLayout.SOUTH);
         return westPanel;
     }
 
-    private void setupTextAreaProperties(JTextArea textArea, int index) {
-        textArea.setOpaque(false);
-        textArea.setBorder(null);
-        textArea.setFont(new Font("Consolas", Font.PLAIN, 13)); // 👈 추가됨
-    }
-
-
-    private void setupOutputArea(JTextArea outputArea) {
-        outputArea.setOpaque(false);
-        outputArea.setBorder(null);
-        outputArea.setEditable(false);
-        outputArea.setFont(new Font("Consolas", Font.PLAIN, 13)); // 👈 추가됨
-    }
-
-
-    private JPanel createGradientPanel(Color topColor, Color bottomColor) {
-        return new JPanel() {
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                Graphics2D g2d = (Graphics2D) g;
-                int width = getWidth(), height = getHeight();
-                g2d.setPaint(new GradientPaint(0, 0, topColor, 0, height, bottomColor));
-                g2d.fillRect(0, 0, width, height);
-            }
-        };
+    public static JTextField createGradientTextField(int columns) {
+        JTextField field = new GradientTextField(columns);
+        field.setForeground(TEXT_COLOR);
+        field.setFont(CONSOLAS_FONT);
+        field.setOpaque(false);
+        field.setBorder(new EmptyBorder(10, 10, 10, 10));
+        return field;
     }
 }
