@@ -10,30 +10,36 @@ import javax.swing.plaf.basic.BasicButtonUI;
 import com.ittia.gds.ui.components.mainframe.buttons.MainFrame_Button_north_south;
 
 /**
- * Compact UI formatting for GDS EMR interface with Kim Whanki's "Universe" color palette.
+ * Compact UI formatting for GDS EMR interface with a modern blue-gray palette and reduced button height.
+ * Ensures all text components use Consolas font explicitly via UIManager.
  */
 public class MainFrameFormat {
     private static final int FRAME_WIDTH = 1275;
     private static final int FRAME_HEIGHT = 1020;
-    private static final Font CONSOLAS_FONT = new Font("Consolas", Font.PLAIN, 11);
-    private static final Color HOVER_COLOR = new Color(255, 255, 255, 150);
-    private static final Color PRESSED_COLOR = new Color(200, 200, 255, 200);
-    private static final int BUTTON_CORNER_RADIUS = 20;
-    private static final Color UNIVERSE_BLUE_DARK = new Color(0, 0, 60);
-    private static final Color UNIVERSE_BLUE_MID = new Color(0, 0, 120);
-    private static final Color UNIVERSE_BLUE_LIGHT = new Color(100, 150, 255);
-    private static final Color UNIVERSE_ACCENT_LIGHT = new Color(220, 230, 255);
-    private static final Color UNIVERSE_ACCENT_SUBTLE_WARM = new Color(255, 230, 180);
-    private static final Color TEXT_COLOR = new Color(240, 240, 255);
+    // CONSOLAS_FONT is no longer needed here for default component fonts, as UIManager sets it.
+    // However, CONSOLAS_BOLD_FONT is still used for specific button styling.
+    private static final Font CONSOLAS_BOLD_FONT = new Font("DejaVu Sans Mono", Font.BOLD, 11);
+    private static final Color HOVER_COLOR = new Color(255, 255, 255, 100);
+    private static final Color PRESSED_COLOR = new Color(200, 220, 255, 150);
+    private static final int BUTTON_CORNER_RADIUS = 15;
+    // Color palette
+    private static final Color SKY_BLUE = new Color(230, 240, 250); // #E6F0FA
+    private static final Color SLATE_BLUE = new Color(70, 130, 180); // #4682B4
+    private static final Color CYAN_LIGHT = new Color(176, 224, 230); // #B0E0E6
+    private static final Color BLUE_MID = new Color(100, 149, 237); // #6495ED
+    private static final Color GRAY_ACCENT = new Color(211, 211, 211); // #D3D3D3
+    private static final Color OFF_WHITE = new Color(245, 246, 245); // #F5F6F5
+    private static final Color INPUT_TEXT_COLOR = new Color(0, 0, 0); // Black for input text
+    private static final Color BUTTON_TEXT_COLOR = new Color(74, 47, 0); // #4A2F00 Brown for button titles
 
     private JButton createFancyButton(String text, String panelType) {
         JButton button = new JButton(text) {
             private boolean hovered, pressed;
 
             {
-                setFont(CONSOLAS_FONT);
-                setForeground(TEXT_COLOR);
-                setBorder(new EmptyBorder(8, 20, 8, 20));
+                setFont(CONSOLAS_BOLD_FONT); // Still explicitly set Consolas bold for buttons
+                setForeground(BUTTON_TEXT_COLOR);
+                setBorder(new EmptyBorder(6, 15, 6, 15));
                 setContentAreaFilled(false);
                 setFocusPainted(false);
                 setUI(new BasicButtonUI());
@@ -62,12 +68,12 @@ public class MainFrameFormat {
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
                 Shape shape = new RoundRectangle2D.Double(0, 0, getWidth()-1, getHeight()-1, BUTTON_CORNER_RADIUS, BUTTON_CORNER_RADIUS);
-                g2.setPaint(new GradientPaint(0, 0, UNIVERSE_BLUE_LIGHT, 0, getHeight(), UNIVERSE_BLUE_MID));
+                g2.setPaint(new GradientPaint(0, 0, CYAN_LIGHT, 0, getHeight(), BLUE_MID));
                 g2.fill(shape);
                 if (hovered) g2.setColor(HOVER_COLOR);
                 if (pressed) g2.setColor(PRESSED_COLOR);
                 if (hovered || pressed) g2.fill(shape);
-                g2.setColor(UNIVERSE_ACCENT_LIGHT);
+                g2.setColor(GRAY_ACCENT);
                 g2.draw(shape);
                 g2.dispose();
                 super.paintComponent(g);
@@ -82,7 +88,7 @@ public class MainFrameFormat {
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 Graphics2D g2d = (Graphics2D) g;
-                g2d.setPaint(new GradientPaint(0, 0, UNIVERSE_BLUE_LIGHT, 0, getHeight(), UNIVERSE_BLUE_DARK));
+                g2d.setPaint(new GradientPaint(0, 0, SKY_BLUE, 0, getHeight(), SLATE_BLUE));
                 g2d.fillRect(0, 0, getWidth(), getHeight());
             }
         };
@@ -95,30 +101,33 @@ public class MainFrameFormat {
 
     public JPanel createNorthPanel() {
         String[] buttons = {"Rescue", "Backup", "Copy", "CE", "Clear", "Exit", "Abbreviation", "ICD-11", "KCD8", "Lab code", "Lab sum", "db", "ittia_support"};
-        return createGradientPanel(60, 13, buttons, "north");
+        return createGradientPanel(45, 13, buttons, "north");
     }
 
     public JPanel createSouthPanel() {
         String[] buttons = {"F/U DM", "F/U HTN", "F/U Chol", "F/U Thyroid", "Osteoporosis", "URI", "Allergy", "Injections", "GDS RC", "공단검진", "F/U Edit"};
-        return createGradientPanel(60, 11, buttons, "south");
+        return createGradientPanel(45, 11, buttons, "south");
     }
 
     public JPanel createCenterPanel(JTextArea[] textAreas, String[] titles) {
         JPanel centerPanel = new JPanel(new GridLayout(5, 2));
         centerPanel.setPreferredSize(new Dimension(900, 1000));
         Color[][] gradients = {
-            {UNIVERSE_BLUE_DARK, UNIVERSE_BLUE_LIGHT}, {UNIVERSE_BLUE_MID, UNIVERSE_ACCENT_LIGHT},
-            {UNIVERSE_BLUE_DARK, UNIVERSE_ACCENT_LIGHT}, {UNIVERSE_BLUE_MID, UNIVERSE_BLUE_LIGHT},
-            {UNIVERSE_BLUE_LIGHT, UNIVERSE_ACCENT_LIGHT}, {UNIVERSE_ACCENT_LIGHT, UNIVERSE_BLUE_DARK},
-            {UNIVERSE_BLUE_DARK, UNIVERSE_ACCENT_SUBTLE_WARM}, {UNIVERSE_BLUE_MID, UNIVERSE_ACCENT_LIGHT},
-            {UNIVERSE_BLUE_LIGHT, UNIVERSE_ACCENT_SUBTLE_WARM}, {UNIVERSE_BLUE_DARK, UNIVERSE_ACCENT_LIGHT}
+            {SKY_BLUE, SLATE_BLUE}, {BLUE_MID, GRAY_ACCENT},
+            {SKY_BLUE, GRAY_ACCENT}, {BLUE_MID, SLATE_BLUE},
+            {SKY_BLUE, OFF_WHITE}, {GRAY_ACCENT, SLATE_BLUE},
+            {SKY_BLUE, OFF_WHITE}, {BLUE_MID, GRAY_ACCENT},
+            {SKY_BLUE, OFF_WHITE}, {SLATE_BLUE, GRAY_ACCENT}
         };
 
         for (int i = 0; i < textAreas.length; i++) {
-            textAreas[i] = new GradientTextArea(gradients[i][0], gradients[i][1]);
+            textAreas[i] = new GradientTextArea(gradients[i][0], gradients[i][1]) {
+                {
+                    // Font is now set via UIManager. We only set foreground here.
+                    setForeground(INPUT_TEXT_COLOR);
+                }
+            };
             textAreas[i].setText(titles[i] + "\t");
-            textAreas[i].setForeground(TEXT_COLOR);
-            textAreas[i].setFont(CONSOLAS_FONT);
             textAreas[i].setOpaque(false);
             textAreas[i].setBorder(new EmptyBorder(10, 10, 10, 10));
             JScrollPane scrollPane = new JScrollPane(textAreas[i]);
@@ -134,20 +143,18 @@ public class MainFrameFormat {
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 Graphics2D g2d = (Graphics2D) g;
-                g2d.setPaint(new GradientPaint(0, 0, UNIVERSE_BLUE_LIGHT, 0, getHeight(), UNIVERSE_BLUE_DARK));
+                g2d.setPaint(new GradientPaint(0, 0, SKY_BLUE, 0, getHeight(), SLATE_BLUE));
                 g2d.fillRect(0, 0, getWidth(), getHeight());
             }
         };
         westPanel.setPreferredSize(new Dimension(500, FRAME_HEIGHT));
 
-        outputArea.setForeground(TEXT_COLOR);
-        outputArea.setFont(CONSOLAS_FONT);
+        outputArea.setForeground(INPUT_TEXT_COLOR);
         outputArea.setOpaque(false);
         outputArea.setBorder(new EmptyBorder(10, 10, 10, 10));
         outputArea.setEditable(false);
 
-        inputField.setForeground(TEXT_COLOR);
-        inputField.setFont(CONSOLAS_FONT);
+        inputField.setForeground(INPUT_TEXT_COLOR);
         inputField.setOpaque(false);
         inputField.setBorder(new EmptyBorder(10, 10, 10, 10));
 
@@ -169,9 +176,12 @@ public class MainFrameFormat {
     }
 
     public static JTextField createGradientTextField(int columns) {
-        JTextField field = new GradientTextField(columns);
-        field.setForeground(TEXT_COLOR);
-        field.setFont(CONSOLAS_FONT);
+        JTextField field = new GradientTextField(columns) {
+            {
+                // Font is now set via UIManager. We only set foreground here.
+                setForeground(INPUT_TEXT_COLOR);
+            }
+        };
         field.setOpaque(false);
         field.setBorder(new EmptyBorder(10, 10, 10, 10));
         return field;
